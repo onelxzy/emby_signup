@@ -10,9 +10,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // 输入验证
     if (!preg_match("/^[a-zA-Z0-9]{4,}$/", $username)) {
-        $message = '用户名不符合格式要求！';
+        $message = '用户名只允许包含数字和字母且至少需要4位！';
     } else if ($passwd !== $confirm_passwd) {
         $message = '两次输入的密码不一致！';
+    } else if (!preg_match("^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$", $passwd)) {
+        $message = '密码至少需要8位且必须包含数字和字母！';
     } else {
         // 请求新建账号接口（提前预设好账号模板并抓包获取其userid）
         $url1 = "http://【server】:【port】/emby/Users/New?X-Emby-Token=【token】";    // 中括号的部分替换为你自己的接口信息，建议使用内网服务地址和token并谨防php源码泄露
