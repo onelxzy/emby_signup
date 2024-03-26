@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $message = '用户名只允许包含数字和字母且至少需要4位！';
     } else if ($passwd !== $confirm_passwd) {
         $message = '两次输入的密码不一致！';
-    } else if (!preg_match("^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$", $passwd)) {
+    } else if (!preg_match("/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/", $passwd)) {
         $message = '密码至少需要8位且必须包含数字和字母！';
     } else {
         // 请求新建账号接口（提前预设好账号模板并抓包获取其userid）
