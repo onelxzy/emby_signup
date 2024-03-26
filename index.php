@@ -153,6 +153,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </form>
     </div>
+    <div style="text-align:center;">
+	<a href="https://url.com" style="color:darkgray;">已注册？点击登录</a>       <!---修改为你的Emby公网服务器地址--->
+    </div>
     <div id="message">
         <?php echo $message; ?>
         <button onclick="document.getElementById('message').style.display='none'">OK</button>
