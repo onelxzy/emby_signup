@@ -11,4 +11,5 @@ Emby媒体服务器自助注册
 
 其中：注册新创建的用户所有设置都与21行所填入的模板用户相同，请谨慎设置该模板用户权限
 
+外观展示：
 ![image](https://github.com/onelxzy/emby_signup/assets/64464802/e3d2cdf3-c5b1-407e-ac6d-066448dba980)
