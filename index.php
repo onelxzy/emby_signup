@@ -431,7 +431,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </form>
 
             <div class="login-link">
-                <a href="https://url.com">已有账户？点击登录</a> </div>
+                <a href="https://url.com">已有账户？点击登录</a> </div>     <!---修改为你的Emby公网服务器地址--->
         </div>
     </div>
 
