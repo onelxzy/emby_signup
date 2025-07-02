@@ -17,8 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $message = '密码至少需要8位且必须包含数字和字母！';
     } else {
         // 请求新建账号接口（提前预设好账号模板并抓包获取其userid）
-        $url1 = "http://【server】:【port】/emby/Users/New?X-Emby-Token=【token】";    // 中括号的部分替换为你自己的接口信息，建议使用内网服务地址和token并谨防php源码泄露
-        $data1 = array('Name' => $username, 'CopyFromUserId' => '【preset_userid】', 'UserCopyOptions' => 'UserPolicy,UserConfiguration');    // 中括号内容替换为你模板账号的userid
+        $url1 = "http://【server】:【port】/emby/Users/New?X-Emby-Token=【token】";    // 中括号的部分替换为你自己的接口信息，建议使用内网服务地址和token并谨防php源码泄露，注意这里token是指有账号创建权限的Emby服务器管理员的token
+        $data1 = array('Name' => $username, 'CopyFromUserId' => '【preset_userid】', 'UserCopyOptions' => 'UserPolicy,UserConfiguration');    // 中括号内容替换为你模板账号的userid，注意这里是模板账号，不是管理员
         $options1 = array(
             'http' => array(
                 'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         	$message = "用户名已存在！";
     	} else {
 	        // 为新建的账号更换密码接口
-	        $url2 = "http://【server】:【ip】/emby/Users/{$userid}/Password?X-Emby-Token=【token】";         //同上替换中括号中内容
+	        $url2 = "http://【server】:【ip】/emby/Users/{$userid}/Password?X-Emby-Token=【token】";         //同上替换中括号中内容，token为管理员账户token
 	        $data2 = array('NewPw' => $passwd);
 	        $options2 = array(
 	            'http' => array(
