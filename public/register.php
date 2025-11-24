@@ -481,7 +481,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="logo-section">
             <img src="https://emby.media/favicon-96x96.png" alt="Emby Logo">
             <h1>加入媒体库</h1>
-            <p>Create your personal media account</p>
+            <p>创建您的 Emby 账户</p>
         </div>
 
         <div class="form-container">
