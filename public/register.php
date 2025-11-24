@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else if (!preg_match("/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/", $passwd)) {
         $message = '密码至少需要8位且必须包含数字和字母！';
     } else if (!in_array($input_invite_code, $valid_codes)) {
-        $message = '邀请码无效或已被使用！ '; 
+        $message = '邀请码无效！ '; 
     } else {
         $emby_url = rtrim($config['emby']['base_url'], '/');
         $emby_token = $config['emby']['token'];
@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $response1 = json_decode($result1, true);
             if (!isset($response1['Id']) || $response1['Id'] === NULL) {
-                $message = "用户名已存在或创建失败！";
+                $message = "用户创建失败，请联系管理员！";
             } else {
                 $userid = $response1['Id'];
                 $url2 = "{$emby_url}/emby/Users/{$userid}/Password?X-Emby-Token={$emby_token}";
@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if ($invite_db->useCode($input_invite_code)) {
                         $message = '注册完成！';
                     } else {
-                        $message = '注册完成，但邀请码核销异常。';
+                        $message = '邀请码核销异常。';
                     }
                 }
             }
@@ -90,436 +90,316 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emby 自助注册</title>
+    <title>Emby 媒体库注册</title>
     <link rel="icon" type="image/png" href="https://emby.media/favicon-32x32.png" sizes="32x32">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --primary: #52B54B; /* Emby Greenish */
+            --primary-hover: #43943d;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --input-bg: rgba(15, 23, 42, 0.6);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --blur-amt: 16px;
         }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 20px;
-            color: #333;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .bg-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.4;
+            animation: float 10s infinite ease-in-out;
+        }
+        .blob-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: #4f46e5; animation-delay: 0s; }
+        .blob-2 { bottom: -10%; right: -10%; width: 400px; height: 400px; background: #52B54B; animation-delay: -5s; }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(30px, 50px); }
         }
 
         .main-container {
             width: 100%;
-            max-width: 420px;
-            margin-bottom: 20px;
+            max-width: 400px;
+            position: relative;
+            z-index: 10;
         }
 
         .logo-section {
             text-align: center;
             margin-bottom: 30px;
+            animation: fadeInDown 0.8s ease-out;
         }
 
         .logo-section img {
-            width: 64px;
-            height: 64px;
+            width: 72px;
+            height: 72px;
             margin-bottom: 16px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 18px;
+            box-shadow: 0 0 20px rgba(82, 181, 75, 0.3);
         }
 
         .logo-section h1 {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
-            color: white;
+            letter-spacing: -0.5px;
             margin-bottom: 8px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(to right, #fff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .logo-section p {
-            font-size: 16px;
-            color: rgba(255, 255, 255, 0.8);
-            font-weight: 400;
+            font-size: 14px;
+            color: var(--text-sub);
         }
 
         .form-container {
-            background: white;
-            border-radius: 20px;
+            background: var(--card-bg);
+            backdrop-filter: blur(var(--blur-amt));
+            -webkit-backdrop-filter: blur(var(--blur-amt));
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
             padding: 40px 32px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeInUp 0.8s ease-out;
         }
 
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: 20px;
+            position: relative;
         }
 
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            font-weight: 500;
-            color: #374151;
-            font-size: 14px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-sub);
         }
 
         .form-group input {
             width: 100%;
-            padding: 16px;
-            border: 2px solid #e5e7eb;
+            padding: 14px 16px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background: #f9fafb;
+            color: white;
+            font-size: 15px;
             font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input::placeholder {
+            color: rgba(148, 163, 184, 0.4);
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #667eea;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            transform: translateY(-1px);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(82, 181, 75, 0.15);
+            background: rgba(15, 23, 42, 0.8);
         }
         
         .form-group input[readonly] {
-            background-color: #e5e7eb; 
-            color: #6b7280; 
-            cursor: not-allowed; 
-            border-color: #d1d5db;
-        }
-        .form-group input[readonly]:focus {
-            box-shadow: none; 
-            border-color: #d1d5db;
+            opacity: 0.6;
+            cursor: not-allowed;
+            border-style: dashed;
         }
 
         .form-group input[type="submit"] {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, #3d8c38 100%);
             color: white;
             cursor: pointer;
             font-weight: 600;
             border: none;
-            margin-top: 8px;
+            margin-top: 12px;
             font-size: 16px;
-            position: relative;
-            overflow: hidden;
+            letter-spacing: 0.5px;
+            box-shadow: 0 10px 15px -3px rgba(82, 181, 75, 0.3);
         }
 
         .form-group input[type="submit"]:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 14px 20px -3px rgba(82, 181, 75, 0.4);
         }
 
         .form-group input[type="submit"]:active {
             transform: translateY(0);
         }
 
-        .login-link {
+        .status-link {
             text-align: center;
             margin-top: 24px;
-            padding-top: 24px;
-            border-top: 1px solid #e5e7eb;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
         }
 
-        .login-link a {
-            color: #667eea;
+        .status-link a {
+            color: var(--text-sub);
             text-decoration: none;
-            font-weight: 500;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .login-link a:hover {
-            color: #764ba2;
-            text-decoration: underline;
-        }
-
-        #message {
-            display: none; 
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-            z-index: 1000;
-            display: flex;
+            font-size: 13px;
+            transition: color 0.3s;
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            padding: 20px;
+            gap: 6px;
+        }
+        
+        .status-link a::before {
+            content: '';
+            display: block;
+            width: 8px;
+            height: 8px;
+            background-color: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #10b981;
         }
 
-        .message-content {
-            background: white;
-            padding: 32px;
-            border-radius: 16px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-            text-align: center;
-            max-width: 400px;
-            width: 100%;
-            animation: messageSlideIn 0.3s ease-out;
-        }
-
-        @keyframes messageSlideIn {
-            from {
-                opacity: 0;
-                transform: scale(0.9) translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-
-        .message-content p {
-            margin-bottom: 24px;
-            font-size: 16px;
-            color: #374151;
-            line-height: 1.5;
-        }
-
-        .message-content button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .status-link a:hover {
             color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s ease;
         }
 
-        .message-content button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-        }
-
-        /* 用户须知弹窗样式 */
-        #userNotice {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .notice-content {
-            background: white;
-            padding: 40px 36px;
-            border-radius: 20px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
-            text-align: left;
-            max-width: 500px;
-            width: 100%;
-            animation: noticeSlideIn 0.4s ease-out;
-            border: 2px solid #667eea;
-        }
-
-        @keyframes noticeSlideIn {
-            from {
-                opacity: 0;
-                transform: scale(0.8) translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-
-        .notice-content h3 {
-            color: #667eea;
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .notice-content h3::before {
-            content: "⚠️";
-            font-size: 24px;
-        }
-
-        .notice-content .notice-text {
-            font-size: 16px;
-            color: #374151;
-            line-height: 1.6;
-            margin-bottom: 28px;
-            white-space: pre-line;
-        }
-
-        .notice-content .important-text {
-            color: #dc2626;
-            font-weight: 600;
-        }
-
-        .notice-content button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            width: 100%;
-            margin-top: 8px;
-        }
-
-        .notice-content button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-        }
-
+        /* Footer */
         .footer {
-            margin-top: auto;
-            padding: 20px;
+            margin-top: 40px;
             text-align: center;
+            animation: fadeIn 1s ease-out 0.5s both;
         }
 
         .footer-content {
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
+            gap: 10px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
         .footer-content a {
-            color: rgba(255, 255, 255, 0.9);
+            color: var(--text-sub);
             text-decoration: none;
-            transition: all 0.3s ease;
+            font-size: 13px;
             display: flex;
             align-items: center;
             gap: 6px;
+            transition: all 0.2s;
         }
 
         .footer-content a:hover {
             color: white;
-            transform: translateY(-1px);
         }
 
         .github-icon {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             fill: currentColor;
         }
 
-        @media (max-width: 480px) {
-            body {
-                padding: 16px;
-            }
-
-            .main-container {
-                max-width: 100%;
-            }
-
-            .form-container {
-                padding: 32px 24px;
-                border-radius: 16px;
-            }
-
-            .logo-section h1 {
-                font-size: 24px;
-            }
-
-            .logo-section p {
-                font-size: 14px;
-            }
-
-            .form-group input {
-                padding: 14px;
-                font-size: 16px; 
-            }
-
-            .form-group input[type="submit"] {
-                padding: 10px 15px;
-                font-size: 16px;
-            }
-
-            .message-content {
-                padding: 24px;
-                margin: 16px;
-            }
-
-            .notice-content {
-                padding: 32px 24px;
-                margin: 16px;
-                border-radius: 16px;
-            }
-
-            .notice-content h3 {
-                font-size: 18px;
-            }
-
-            .notice-content .notice-text {
-                font-size: 15px;
-            }
+        /* Modals */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
 
-        @media (max-width: 360px) {
-            .form-container {
-                padding: 24px 20px;
-            }
-
-            .logo-section h1 {
-                font-size: 22px;
-            }
-
-            .notice-content {
-                padding: 24px 20px;
-            }
+        .modal-content {
+            background: #1e293b;
+            padding: 32px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            animation: zoomIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        @media (prefers-color-scheme: dark) {
-            .form-container {
-                background: rgba(255, 255, 255, 0.95); 
-            }
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
-        @media (prefers-contrast: high) {
-            .form-group input {
-                border: 2px solid #000;
-            }
-
-            .form-group input:focus {
-                border-color: #000;
-                box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
-            }
+        .modal-text {
+            font-size: 15px;
+            color: var(--text-sub);
+            line-height: 1.6;
+            margin-bottom: 24px;
+            text-align: left;
+            background: rgba(0,0,0,0.2);
+            padding: 16px;
+            border-radius: 12px;
+        }
+        
+        .modal-text .highlight {
+            color: #ef4444;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
         }
 
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
+        .modal-btn {
+            background: white;
+            color: #0f172a;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
         }
+
+        .modal-btn:hover {
+            background: #f1f5f9;
+            transform: scale(1.02);
+        }
+
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
     </style>
     <script>
         function checkFirstVisit() {
@@ -530,26 +410,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         function showUserNotice() {
-            var noticeBox = document.getElementById('userNotice');
-            noticeBox.style.display = 'flex';
+            document.getElementById('userNotice').style.display = 'flex';
         }
 
         function hideUserNotice() {
-            var noticeBox = document.getElementById('userNotice');
-            noticeBox.style.display = 'none';
+            const notice = document.getElementById('userNotice');
+            notice.style.opacity = '0';
+            setTimeout(() => notice.style.display = 'none', 300);
         }
 
         function showMessage() {
             var messageBox = document.getElementById('message');
-            var messageContent = messageBox.querySelector('.message-content p');
-            var messageButton = messageBox.querySelector('.message-content button');
-
-            if (messageContent.textContent.trim() !== '') {
+            var messageContent = document.getElementById('msg-text');
+            
+            if (messageContent.innerText.trim() !== '') {
                 messageBox.style.display = 'flex'; 
-
+                
                 setTimeout(function() {
                     hideMessage();
-                    if (messageContent.textContent.trim() === '注册完成！') {
+                    if (messageContent.innerText.trim() === '注册完成！') {
                         window.location.href = '<?php echo $config["site"]["login_url"]; ?>';
                     }
                 }, 3000);
@@ -558,9 +437,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         function hideMessage() {
             var messageBox = document.getElementById('message');
-            var messageContent = messageBox.querySelector('.message-content p');
-            messageBox.style.display = 'none';
-            if (messageContent.textContent.trim() === '注册完成！') {
+            var messageContent = document.getElementById('msg-text');
+            
+            messageBox.style.opacity = '0';
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+                messageBox.style.opacity = '1';
+            }, 300);
+
+            if (messageContent.innerText.trim() === '注册完成！') {
                 window.location.href = '<?php echo $config["site"]["login_url"]; ?>';
             }
         }
@@ -568,48 +453,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         document.addEventListener('DOMContentLoaded', function() {
             checkFirstVisit();
 
-            var messageOverlay = document.getElementById('message');
-            if (messageOverlay) {
-                messageOverlay.addEventListener('click', function(e) {
-                    if (e.target === messageOverlay) { 
-                        hideMessage();
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) {
+                        if(overlay.id === 'message') hideMessage();
                     }
                 });
-            }
-
-            var noticeOverlay = document.getElementById('userNotice');
-            if (noticeOverlay) {
-                noticeOverlay.addEventListener('click', function(e) {
-                    e.preventDefault();
-                });
-            }
+            });
         });
     </script>
 </head>
 <body>
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
     <!-- 这是一段自定义公告
-    <div id="userNotice">
-        <div class="notice-content">
-            <h3>用户使用须知</h3>
-            <div class="notice-text">
-<span class="important-text">注意：此处可以填写公告
+    <div id="userNotice" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-title">⚠️ 用户须知</div>
+            <div class="modal-text">
+                此处可以填写公告
             </div>
-            <button onclick="hideUserNotice()">我已了解，继续注册</button>
+            <button class="modal-btn" onclick="hideUserNotice()">我已了解，继续</button>
         </div>
     </div>
     -->
     <div class="main-container">
         <div class="logo-section">
             <img src="https://emby.media/favicon-96x96.png" alt="Emby Logo">
-            <h1>Emby 注册</h1>
-            <p>创建您的媒体账户</p>
+            <h1>加入媒体库</h1>
+            <p>Create your personal media account</p>
         </div>
 
         <div class="form-container">
             <form method="post" action="">
                 <div class="form-group">
                     <label for="username">用户名</label>
-                    <input type="text" id="username" name="username" required placeholder="请输入用户名" value="<?php echo isset($_POST['username']) ? htmlspecialchars($_POST['username']) : ''; ?>">
+                    <input type="text" id="username" name="username" required placeholder="请输入用户名" autocomplete="off" value="<?php echo isset($_POST['username']) ? htmlspecialchars($_POST['username']) : ''; ?>">
                 </div>
                 <div class="form-group">
                     <label for="passwd">密码</label>
@@ -626,32 +505,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                            <?php echo !empty($invite_code_from_url) ? 'readonly' : ''; ?>>
                 </div>
                 <div class="form-group">
-                    <input type="submit" value="创建账户">
+                    <input type="submit" value="立即注册">
                 </div>
             </form>
 
-            <div class="login-link">
-            <a href="./admin.php" style="color:darkgray;">邀请码管理</a> </div>
+            <div class="status-link">
+                <a href="./admin.php" target="_blank">邀请码管理</a>
+            </div>
         </div>
-    </div>
 
-    <div class="footer">
-        <div class="footer-content">
-            <span>开源项目</span>
-            <a href="https://github.com/onelxzy/emby_signup" target="_blank" rel="noopener noreferrer">
-                <svg class="github-icon" viewBox="0 0 24 24">
-                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                </svg>
-                GitHub
-            </a>
+        <div class="footer">
+            <div class="footer-content">
+                <a href="https://github.com/onelxzy/emby_signup" target="_blank" rel="noopener noreferrer">
+                    <svg class="github-icon" viewBox="0 0 24 24">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                    Open Source
+                </a>
+            </div>
         </div>
     </div>
 
     <?php if ($message !== ''): ?>
-        <div id="message">
-            <div class="message-content">
-                <p><?php echo htmlspecialchars($message); ?></p>
-                <button onclick="hideMessage()">确定</button>
+        <?php 
+            $is_success = ($message === '注册完成！');
+            $modal_icon = $is_success ? '✅' : '⚠️';
+            $modal_style_class = $is_success ? 'modal-success' : 'modal-warning';
+        ?>
+        <div id="message" class="modal-overlay">
+            <div class="modal-content <?php echo $modal_style_class; ?>" style="max-width: 320px;">
+                <div style="font-size: 32px; margin-bottom: 10px;"><?php echo $modal_icon; ?></div>
+                <p id="msg-text" style="color: white; margin-bottom: 20px; font-size: 16px;"><?php echo htmlspecialchars($message); ?></p>
+                <button class="modal-btn" onclick="hideMessage()">确定</button>
             </div>
         </div>
         <script>showMessage();</script>
