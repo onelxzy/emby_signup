@@ -48,7 +48,7 @@
 ---
 
 ## 🌟 页面预览
-> 简洁美观的响应式注册页面，支持 PC 与移动端
+> 与Emby风格适配的响应式自助注册页面，支持 PC 与移动端
 
 <img width="1897" height="1080" alt="image" src="https://github.com/user-attachments/assets/7c3bed91-bc81-44fa-a40b-d41f10046283" />
 
