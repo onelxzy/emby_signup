@@ -1,4 +1,4 @@
-# Emby Signup 自助注册系统
+# Emby Signup 邀请注册系统
 
 ![PHP](https://img.shields.io/badge/PHP-7.4+-blue.svg) ![SQLite](https://img.shields.io/badge/SQLite-3-green.svg)
 
