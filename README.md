@@ -50,15 +50,13 @@
 ## 🌟 页面预览
 > 简洁美观的响应式注册页面，支持 PC 与移动端
 
-<img width="1896" height="1080" alt="image" src="https://github.com/user-attachments/assets/bc15afb1-baf9-4eed-9ccd-f924ac4137df" />
-
-
+<img width="1897" height="1080" alt="image" src="https://github.com/user-attachments/assets/7c3bed91-bc81-44fa-a40b-d41f10046283" />
 
 > 邀请码后台管理界面
 
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/88e901a0-f4d1-4e3b-b0e2-57c67f74ce88" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/72f68bad-d079-49c7-9192-4f071220ffe6" />
 
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/4c6992fd-3a9f-4827-992f-9ef38e5e4db7" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/cee9f357-2813-4c3a-a7e9-690638eedff7" />
 
 ---
 
