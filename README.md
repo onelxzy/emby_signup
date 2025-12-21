@@ -45,11 +45,11 @@
 2. 下载源码：下载本项目至服务器。
 3. 配置修改：
    
-    ●根据注释修改 ./config/config.php，填入 Emby API 信息及管理员账号。
+    ●根据注释修改 `./config/config.php`，填入 Emby API 信息及管理员账号。
 
     ●[新增] 在配置文件中填入您的 SMTP 邮箱服务信息（支持 QQ、Gmail、126 等）。
 
-    ●[新增] 可按需编辑 ./config/email_template.txt 自定义发送给用户的邮件文案。
+    ●[新增] 可按需编辑 `./config/email_template.txt` 自定义发送给用户的邮件文案。
 4. 权限设置：PHP 需要对 `./config` 目录有写入权限；将 Nginx 或 Apache 的网站根目录指向 `./public` 目录。
    
 📌 **模板账号权限必须事先设置好！** 新用户会完整继承该用户的 Emby 权限设置，请谨慎选择。
