@@ -37,4 +37,24 @@ return [
         // 注册成功后跳转的 Emby 登录页
         'login_url' => 'http://YOUR_EMBY_IP:PORT', 
     ],
+    
+    // ------------------------------------------
+    // 邮件发送配置 (SMTP)
+    // ------------------------------------------
+    'smtp' => [
+        'host' => 'smtp.qq.com',       // SMTP 服务器地址 (如 smtp.gmail.com, smtp.126.com)
+        'port' => 465,                 // SMTP 端口 (通常 SSL 使用 465)
+        'secure' => 'ssl',             // 加密方式: 'ssl'
+        'username' => 'your_email@qq.com', // 发件人邮箱账号
+        'password' => 'your_auth_code',    // 邮箱密码或应用专用授权码
+        'from_name' => 'Emby Admin',       // 发件人显示名称
+    ],
+
+    // ------------------------------------------
+    // 邀请邮件配置
+    // ------------------------------------------
+    'email_template' => [
+        'subject' => 'Emby 媒体服务器邀请函',       //邮件主题
+        'template_path' => __DIR__ . '/email_template.txt', 
+    ],
 ];
