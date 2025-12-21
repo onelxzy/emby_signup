@@ -11,6 +11,7 @@
 ## ✨ 功能特性
 
 - **🛡️ 邀请码机制**：新增 SQLite 数据库支持，实现邀请码的生成、验证与自动核销（一次性使用）。
+- **📧 邮件通知**：[新增] 后台集成 SMTP 服务，支持一键发送包含邀请码和注册链接的邀请邮件，支持自定义邮件模板。
 - **📂 配置分离**：配置文件、数据库与前端页面分离，提升安全性与维护便利性。
 - **📝 自动开户**：通过 Emby API 自动完成用户创建。
 - **©️ 权限克隆**：完美复制模板用户的配置（包括媒体库访问权限、播放设置等）。
@@ -26,8 +27,9 @@
 ```text
 /www
 ├── config/                 # [核心] 存放配置和数据库，严禁外部访问
-│   ├── config.php          # 配置文件 (由 template 重命名而来)
+│   ├── config.php          # 配置文件 (需配置 Emby API 及 SMTP 信息)
 │   ├── database.php        # 数据库操作类
+│   ├── email_template.txt  # [新增] 邀请邮件内容模板 (可自定义)
 │   └── invite_codes.sqlite # SQLite 数据库文件 (自动生成)
 └── public/                 # [前端] Web 服务器根目录
     ├── index.php           # 主页面
@@ -40,8 +42,15 @@
 ## 🔧 部署步骤
 
 1. 环境准备：确保服务器安装了 PHP 7.4+ 以及 SQLite3 扩展。
-2. 下载本项目源码，根据注释修改 `./config/config.php` 配置文件。
-3. 权限设置：PHP 需要对 `./config` 目录有写入权限；将 Nginx 或 Apache 的网站根目录指向 `./public` 目录。
+2. 下载源码：下载本项目至服务器。
+3. 配置修改：
+   
+    ●根据注释修改 ./config/config.php，填入 Emby API 信息及管理员账号。
+
+    ●[新增] 在配置文件中填入您的 SMTP 邮箱服务信息（支持 QQ、Gmail、126 等）。
+
+    ●[新增] 可按需编辑 ./config/email_template.txt 自定义发送给用户的邮件文案。
+4. 权限设置：PHP 需要对 `./config` 目录有写入权限；将 Nginx 或 Apache 的网站根目录指向 `./public` 目录。
    
 📌 **模板账号权限必须事先设置好！** 新用户会完整继承该用户的 Emby 权限设置，请谨慎选择。
 
@@ -56,7 +65,8 @@
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/72f68bad-d079-49c7-9192-4f071220ffe6" />
 
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/cee9f357-2813-4c3a-a7e9-690638eedff7" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/8878ad7e-91b3-4a4d-883b-91e7384c505e" />
+
 
 ---
 
