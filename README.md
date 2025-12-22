@@ -39,7 +39,7 @@
 
 ---
 
-## 🔧 部署步骤
+## 🔧 直接部署
 
 1. 环境准备：确保服务器安装了 PHP 7.4+ 以及 SQLite3 扩展。
 2. 下载源码：下载本项目至服务器。
@@ -51,6 +51,62 @@
 
     ●[新增] 可按需编辑 `./config/email_template.txt` 自定义发送给用户的邮件文案。
 4. 权限设置：PHP 需要对 `./config` 目录有写入权限；将 Nginx 或 Apache 的网站根目录指向 `./public` 目录。
+## 🐳 Docker 部署 
+
+### 快速启动
+
+1. **下载镜像**
+   ```bash
+   docker pull onelxzy/emby_signup:latest
+   ```
+
+2. **创建配置文件目录**
+   在宿主机创建一个目录用于保存配置（例如 `config`），以便重启容器后配置不丢失。
+   ```bash
+   mkdir -p config
+   ```
+
+3. **启动容器**
+   运行以下命令（请根据实际情况修改环境变量）：
+> **💡 提示**：你也可以**不设置**任何 `-e` 环境变量直接启动。容器启动后会自动在挂载的 `./config` 目录下生成 `config.php`，你可以直接编辑该文件填入配置，然后重启容器即可。
+   ```bash
+   docker run -d \
+     --name emby-signup \
+     --restart always \
+     -p 8888:80 \
+     -v $(pwd)/config:/var/www/html/config \
+     -e EMBY_BASE_URL="http://192.168.1.10:8096" \
+     -e EMBY_API_TOKEN="你的EmbyAPI密钥" \
+     -e EMBY_TEMPLATE_USER_ID="复制权限的模板用户ID" \
+     -e SITE_LOGIN_URL="http://192.168.1.10:8096" \
+     -e ADMIN_USERNAME="admin" \
+     -e ADMIN_PASSWORD="password" \
+     -e SMTP_HOST="smtp.qq.com" \
+     -e SMTP_PORT="465" \
+     -e SMTP_SECURE="ssl" \
+     -e SMTP_USERNAME="your_email@qq.com" \
+     -e SMTP_PASSWORD="your_smtp_password" \
+     -e SMTP_FROM_NAME="Emby Admin" \
+     onelxzy/emby_signup:latest
+   ```
+
+### 环境变量说明
+
+| 变量名 | 必填 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `EMBY_BASE_URL` | ✅ | - | Emby 服务器地址 |
+| `EMBY_API_TOKEN` | ✅ | - | 在 Emby 控制台 -> 高级 -> API 密钥中生成 |
+| `EMBY_TEMPLATE_USER_ID` | ✅ | - | 用于复制权限/配置的模板用户 ID |
+| `SITE_LOGIN_URL` | ✅ | - | 注册成功后跳转的登录地址 |
+| `ADMIN_USERNAME` | ❌ | `admin` | 后台管理面板用户名 |
+| `ADMIN_PASSWORD` | ❌ | `password` | 后台管理面板密码 |
+| `SMTP_HOST` | ✅ | - | SMTP 服务器 (如 `smtp.qq.com`) |
+| `SMTP_PORT` | ❌ | `465` | SMTP 端口 |
+| `SMTP_SECURE` | ❌ | `ssl` | 加密方式 (`ssl` 或 `tls`) |
+| `SMTP_USERNAME` | ✅ | - | 发信邮箱账号 |
+| `SMTP_PASSWORD` | ✅ | - | 邮箱密码或应用专用授权码 |
+| `SMTP_FROM_NAME` | ❌ | `Emby Admin` | 邮件发件人显示名称 |
+| `EMAIL_SUBJECT` | ❌ | `Emby 媒体服务器邀请函` | 邀请邮件的主题 |
    
 📌 **模板账号权限必须事先设置好！** 新用户会完整继承该用户的 Emby 权限设置，请谨慎选择。
 
