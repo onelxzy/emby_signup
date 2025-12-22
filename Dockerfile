@@ -3,12 +3,8 @@ FROM php:8.2-apache
 # 1. 设置环境变量
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
-# 2. 安装依赖并配置 PHP 扩展
+# 2. 安装依赖
 RUN apt-get update && apt-get install -y \
-        libsqlite3-dev \
-    && docker-php-source extract \
-    && docker-php-ext-install sqlite3 \
-    && docker-php-source delete \
     && rm -rf /var/lib/apt/lists/*
 
 # 3. 使用生产环境配置
@@ -28,7 +24,7 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html \
     && chmod -R 777 /var/www/html/config
 
-# 7. 备份配置 (用于初始化)
+# 7. 备份配置
 RUN mkdir -p /usr/src/app_backup && cp -r /var/www/html/config /usr/src/app_backup/config
 
 # 8. 入口脚本
