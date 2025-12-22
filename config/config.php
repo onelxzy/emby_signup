@@ -20,9 +20,9 @@ return [
         // 您的 Emby 服务器地址，例如 'http://127.0.0.1:8096'
         'base_url' => env('EMBY_BASE_URL', 'http://YOUR_EMBY_IP:PORT'), 
         // Emby 的 API Token
-        'base_url' => env('EMBY_BASE_URL', 'http://YOUR_EMBY_IP:PORT'),
+        'token' => env('EMBY_API_TOKEN', 'YOUR_EMBY_API_TOKEN'),
         // 用于复制权限的模板用户 ID
-        'template_user_id' => env('EMBY_TEMPLATE_USER_ID', 'EMBY_TEMPLATE_USER_ID'),
+        'template_user_id' => env('EMBY_TEMPLATE_USER_ID', 'YOUR_EMBY_TEMPLATE_USER_ID'),
     ],
     
     // ------------------------------------------
